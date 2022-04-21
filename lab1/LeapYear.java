@@ -2,6 +2,13 @@
  *  @author YOUR NAME HERE
  */
 public class LeapYear {
+    /** isLeapYear() is used for checking whether the year is a leap year.
+    *   @param year
+    */
+    private static boolean isLeapYear(int year){
+	if(year % 400 == 0 || (year % 100 != 0 && year % 4 == 0)) return true;
+	return false;
+    }
 
     /** Calls isLeapYear to print correct statement.
      *  @param  year to be analyzed
