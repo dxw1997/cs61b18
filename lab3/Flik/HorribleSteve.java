@@ -3,6 +3,7 @@ public class HorribleSteve {
         int i = 0;
         for (int j = 0; i < 500; ++i, ++j) {
             if (!Flik.isSameNumber(i, j)) {
+//                i = i;
                 break; // break exits the for loop!
             }
         }
