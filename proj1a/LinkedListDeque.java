@@ -114,7 +114,7 @@ public class LinkedListDeque<T> {
         else return null;
     }
 
-    public T getRecursiveSub(int index, LNode<T> p){
+    private T getRecursiveSub(int index, LNode<T> p){
         if(index == 0) return p.data;
         return getRecursiveSub(index-1, p.next);
     }

@@ -3,7 +3,7 @@ public class ArrayDeque<T>{
     private T[] darr;
     private int capacity;
     private int size;
-    int head, tail;
+    private int head, tail;
 
     public ArrayDeque(){
         head = tail = 0;
