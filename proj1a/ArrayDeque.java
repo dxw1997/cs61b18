@@ -1,5 +1,3 @@
-import java.util.*;
-import java.lang.reflect.Array;
 
 public class ArrayDeque<T>{
     private T[] darr;
