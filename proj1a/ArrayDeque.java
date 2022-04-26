@@ -1,7 +1,8 @@
 import java.util.*;
+import java.lang.reflect.Array;
 
 public class ArrayDeque<T>{
-    private List<T> darr;
+    private T[] darr;
     private int capacity;
     private int size;
     int head, tail;
@@ -9,8 +10,7 @@ public class ArrayDeque<T>{
     public ArrayDeque(){
         head = tail = 0;
         capacity = 8;
-        darr = new ArrayList<T>(capacity);
-        for(int i = 0;i < capacity;i++) darr.add(null);
+        darr = (T[])new Object[capacity];
     }
 
     /**
@@ -18,12 +18,11 @@ public class ArrayDeque<T>{
      */
     private void extendCapacity(){
         if(size == 0) return;
-        List<T> ndarr = new ArrayList<>(capacity*2);
-        for(int i = 0;i < capacity*2;i++) ndarr.add(null);
+        T[] ndarr = (T[])new Object[capacity*2];
         int h = head==0?capacity-1:head-1;
         int t = tail==capacity-1?0:tail+1;
         for(int idx = size-1;true;h = h==0?capacity-1:h-1){
-            ndarr.set(idx, darr.get(h));
+            ndarr[idx] = darr[h];
             if(h == t) break;
             --idx;
         }
@@ -36,12 +35,11 @@ public class ArrayDeque<T>{
 
     private void shrinkCapacity(){
         if(capacity <= 8) return;
-        List<T> ndarr = new ArrayList<>(capacity/2);
-        for(int i = 0;i < capacity/2;i++) ndarr.add(null);
+        T[] ndarr = (T[])new Object[capacity/2];
         int h = head==0?capacity-1:head-1;
         int t = tail==capacity-1?0:tail+1;
         for(int idx = size-1;true;h = h==0?capacity-1:h-1){
-            ndarr.set(idx, darr.get(h));
+            ndarr[idx] = darr[h];
             if(h == t) break;
             --idx;
         }
@@ -63,7 +61,7 @@ public class ArrayDeque<T>{
         if(size == capacity){
             extendCapacity();
         }
-        darr.set(head, item);
+        darr[head] = item;
         if(head == tail && size == 0) {
             tail = (tail == 0) ? capacity - 1 : tail - 1;
         }
@@ -74,7 +72,7 @@ public class ArrayDeque<T>{
         if(size == capacity){
             extendCapacity();
         }
-        darr.set(tail, item);
+        darr[tail] = item;
         if(head == tail && size == 0){
             head = (head == capacity-1)?0:head+1;
         }
@@ -91,10 +89,10 @@ public class ArrayDeque<T>{
         if(size == 0) return;
         int h = head==0?capacity-1:head-1;
         int t = tail==capacity-1?0:tail+1;
-        System.out.print(darr.get(h));
+        System.out.print(darr[h]);
         if(h == t) return;
         for(h = h==0?capacity-1:h-1;true;h = h==0?capacity-1:h-1){
-            System.out.print(" "+darr.get(h));
+            System.out.print(" "+darr[h]);
             if(h == t) break;
         }
         return;
@@ -102,7 +100,8 @@ public class ArrayDeque<T>{
     public T removeFirst(){
         if(size == 0) return null;
         head = head==0?capacity-1:head-1;
-        T res = darr.get(head);
+        T res = darr[head];
+        darr[head] = null;
         --size;
         checkShrink();
         return res;
@@ -110,7 +109,8 @@ public class ArrayDeque<T>{
     public T removeLast(){
         if(size == 0) return null;
         tail = tail==capacity-1?0:tail+1;
-        T res = darr.get(tail);
+        T res = darr[tail];
+        darr[tail] = null;
         --size;
         checkShrink();
         return res;
@@ -119,6 +119,6 @@ public class ArrayDeque<T>{
         if(index < 0 || index >= size) return null;
         int tidx = head-1-index;
         if(tidx < 0) tidx += capacity;
-        return darr.get(tidx);
+        return darr[tidx];
     }
 }
