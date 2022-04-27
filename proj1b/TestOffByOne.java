@@ -15,18 +15,25 @@ public class TestOffByOne {
         assertTrue(offByOne.equalChars('b','a'));
         assertTrue(offByOne.equalChars('&','%'));
         assertTrue(offByOne.equalChars('%','&'));
+        assertTrue(offByOne.equalChars('A','B'));
+        assertTrue(offByOne.equalChars('B','A'));
 
         assertFalse(offByOne.equalChars('a','a'));
         assertFalse(offByOne.equalChars('a','A'));
         assertFalse(offByOne.equalChars('A','a'));
         assertFalse(offByOne.equalChars('A','A'));
+        assertFalse(offByOne.equalChars('A','b'));
+        assertFalse(offByOne.equalChars('b','A'));
         assertFalse(offByOne.equalChars('z','Z'));
         assertFalse(offByOne.equalChars('W','B'));
+        assertFalse(offByOne.equalChars('z','a'));
+        assertFalse(offByOne.equalChars('a','z'));
+
         ///newly added
-        assertTrue(offByOne.equalChars('a','b'));
-        assertFalse(offByOne.equalChars('a','a'));
-        assertFalse(offByOne.equalChars('a','d'));
-        assertFalse(offByOne.equalChars('e','b'));
-        assertTrue(offByOne.equalChars('c','b'));
+        //assertTrue(offByOne.equalChars('a','b'));
+        //assertFalse(offByOne.equalChars('a','a'));
+        //assertFalse(offByOne.equalChars('a','d'));
+        //assertFalse(offByOne.equalChars('e','b'));
+        //assertTrue(offByOne.equalChars('c','b'));
     }
 }
