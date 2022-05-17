@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Collections;
 
+import edu.princeton.cs.introcs.StdDraw;
+
 public class Game {
     private class DrawableObj{
         public int x, y;//bottom-left point, inner
@@ -206,7 +208,7 @@ public class Game {
         // and return a 2D tile representation of the world that would have been
         // drawn if the same inputs had been given to playWithKeyboard().
 
-        ter.initialize(WIDTH, HEIGHT);
+        //ter.initialize(WIDTH, HEIGHT);
 
         finalWorldFrame = new TETile[WIDTH][HEIGHT];
         //initialize finalWorldFrame
@@ -240,7 +242,7 @@ public class Game {
                     //do nothing
             }
         }
-        ter.renderFrame(finalWorldFrame);
+        //ter.renderFrame(finalWorldFrame);
 
         return finalWorldFrame;
     }
