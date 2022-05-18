@@ -4,10 +4,13 @@ import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
+import java.awt.*;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Collections;
+
+import java.io.*;
 
 import edu.princeton.cs.introcs.StdDraw;
 
@@ -44,6 +47,11 @@ public class Game {
     private TETile[][] finalWorldFrame;
     private boolean[][] vis;
 
+
+
+    private TETile mousePos;///previous typed position.
+    private int enx, eny;
+
     /*TETiles types*/
 //    private TETile wall;
 //    private TETile floor;
@@ -63,7 +71,39 @@ public class Game {
         public int dist;
     }
 
+    private void saveConf(){
+        try {
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("./config.txt"));
+            objectOutputStream.writeObject(finalWorldFrame);
+            objectOutputStream.writeObject(rand);
+            objectOutputStream.writeObject(mousePos);
+            objectOutputStream.writeObject(enx);
+            objectOutputStream.writeObject(eny);
+            objectOutputStream.close();
+        } catch (IOException e) {
+            System.out.print("save Config failed.\n");
+            e.printStackTrace();
+        }
+        System.out.print("have saved config.\n");
+    }
 
+    private void loadConf(){
+        try{
+            ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream("./config.txt"));
+            finalWorldFrame = (TETile[][]) objectInputStream.readObject();
+            rand = (Random) objectInputStream.readObject();
+            mousePos = (TETile) objectInputStream.readObject();
+            enx = (int) objectInputStream.readObject();
+            eny = (int) objectInputStream.readObject();
+        }catch(FileNotFoundException e){
+            e.printStackTrace();
+        }catch(IOException e){
+            e.printStackTrace();
+        }catch(ClassNotFoundException e){
+            e.printStackTrace();
+        }
+        System.out.print("have loaded config.\n");
+    }
 
     private void dfs(DrawableObj o, int x, int y, Pos p){
         if(x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT || finalWorldFrame[x][y] != Tileset.FLOOR || vis[x][y]) return;
@@ -101,7 +141,7 @@ public class Game {
             p.dist = 10000;
             vis = new boolean[WIDTH][HEIGHT];
             dfs(arr.get(i-1), arr.get(i).x, arr.get(i).y, p);
-            System.out.printf("p.x:%d, p.y:%d, p.dist:%d \n", p.x, p.y, p.dist);
+//            System.out.printf("p.x:%d, p.y:%d, p.dist:%d \n", p.x, p.y, p.dist);
             if(p.dist != 0 && p.dist != 10000){
                 ///draw the hallway
                 int nx, ny;
@@ -161,6 +201,8 @@ public class Game {
             int y = RandomUtils.uniform(this.rand, 2, HEIGHT-1-8);
             rooms.add(new DrawableObj(x,y,h,w));
         }
+        this.enx = rooms.get(0).x;///initialize the position of entity.
+        this.eny = rooms.get(0).y;
         for(int i = 0;i < hallwayNum;++i ){
             int w,h;
             if(RandomUtils.uniform(this.rand,10) % 2 == 1){
@@ -184,11 +226,184 @@ public class Game {
         connect(rooms, hallways);
     }
 
+    private char readKeyBoard(){
+        int i = 0;
+        while(i < 10 && !StdDraw.hasNextKeyTyped()){
+            StdDraw.pause(100);
+            i++;
+        }
+        if(StdDraw.hasNextKeyTyped()) return StdDraw.nextKeyTyped();
+        else return '#';
+    }
+
+    private void showFont(){
+        ter.initialize(WIDTH, HEIGHT);
+        //initFrame();
+        //ter.renderFrame(finalWorldFrame);
+        StdDraw.clear(StdDraw.BLACK);
+        StdDraw.setPenColor(StdDraw.WHITE);
+        Font font = new Font("Monaco", Font.BOLD, 43);
+        StdDraw.setFont(font);
+        StdDraw.text(39,25,"CS61B: THE GAME");
+        font = new Font("Monaco", Font.BOLD, 26);
+        StdDraw.setFont(font);
+        StdDraw.text(39, 13,"New Game (N)");
+        StdDraw.text(39, 10,"Load Game (L)");
+        StdDraw.text(39, 7,"Quit (Q)");
+        StdDraw.show();
+    }
+
+    private void setRandSeed(long seed){
+        this.rand = new Random(seed);
+    }
+
+    private long readSeed(){
+        long seed = 0;
+        char c = readKeyBoard();
+        while(c != 'S' && c != 's'){///supposing input only consists of digits.
+            seed = seed*10 + c-'0';
+            c = readKeyBoard();
+        }
+        return seed;
+    }
+
+    private void showWorld(){
+        //finalWorldFrame[enx][eny] = Tileset.TREE;
+        ter.renderFrame(finalWorldFrame);
+        StdDraw.setPenColor(StdDraw.WHITE);
+        if(mousePos.equals(Tileset.FLOOR)){
+            StdDraw.text(6, 28,"FLOOR");
+        }else if(mousePos.equals(Tileset.NOTHING)){
+            StdDraw.text(6, 28,"NOTHING");
+        }else if(mousePos.equals(Tileset.WALL)){
+            StdDraw.text(6, 28,"WALL");
+        }else if(mousePos.equals(Tileset.TREE)){
+            StdDraw.text(6, 28,"Entity");
+        }
+        StdDraw.show();
+        //finalWorldFrame[enx][eny] = Tileset.FLOOR;
+    }
+
+    private void moveEW(){
+        if(finalWorldFrame[enx][eny+1].equals(Tileset.FLOOR)){
+            finalWorldFrame[enx][eny++] = Tileset.FLOOR;
+            finalWorldFrame[enx][eny] = Tileset.TREE;
+        }
+    }
+    private void moveEA(){
+        if(finalWorldFrame[enx-1][eny].equals(Tileset.FLOOR)){
+            finalWorldFrame[enx--][eny] = Tileset.FLOOR;
+            finalWorldFrame[enx][eny] = Tileset.TREE;
+        }
+    }
+    private void moveES(){
+        if(finalWorldFrame[enx][eny-1].equals(Tileset.FLOOR)){
+            finalWorldFrame[enx][eny--] = Tileset.FLOOR;
+            finalWorldFrame[enx][eny] = Tileset.TREE;
+        }
+    }
+    private void moveED(){
+        if(finalWorldFrame[enx+1][eny].equals(Tileset.FLOOR)){
+            finalWorldFrame[enx++][eny] = Tileset.FLOOR;
+            finalWorldFrame[enx][eny] = Tileset.TREE;
+        }
+    }
+
+
 
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
      */
     public void playWithKeyboard() {
+        initFrame();
+        showFont();
+        mousePos = Tileset.NOTHING;
+        char command;
+        while(true){
+            command = readKeyBoard();
+            switch(command){
+                case 'N':
+                case 'n':
+                    setRandSeed(readSeed());
+                    generateWorld(finalWorldFrame);
+                    finalWorldFrame[enx][eny] = Tileset.TREE;
+                    showWorld();
+                    break;
+                case 'L':
+                case 'l':
+                    loadConf();
+                    showWorld();
+                    break;
+                case 'Q':
+                case 'q':
+                    saveConf();
+                    return;
+                default:
+                    StdDraw.pause(200);
+            }
+            if(command == 'N' || command == 'n' || command == 'L' || command == 'l') break;
+            ///check Mouse pos.
+        }
+        ///dealing with commands
+        while(true){
+            command = readKeyBoard();
+            System.out.print(command+"\n");
+            switch(command){
+                case 'W':
+                case 'w':
+                    moveEW();
+                    showWorld();
+                    break;
+                case 'A':
+                case 'a':
+                    moveEA();
+                    showWorld();
+                    break;
+                case 'S':
+                case 's':
+                    moveES();
+                    showWorld();
+                    break;
+                case 'D':
+                case 'd':
+                    moveED();
+                    showWorld();
+                    break;
+                case ':':
+                    char c = readKeyBoard();
+                    if(c == 'q' || c == 'Q'){
+                        //save and quit
+                        saveConf();
+                        return;
+                    }else{
+                        StdDraw.pause(50);
+                    }
+                    break;
+                default:
+                    StdDraw.pause(50);
+            }
+            if(StdDraw.isMousePressed()){
+                int x = (int)StdDraw.mouseX(), y = (int)StdDraw.mouseY();
+                if(x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT) mousePos = finalWorldFrame[x][y];
+                //System.out.print("x:"+x+",y:"+y+"\n");
+                showWorld();
+            }
+            StdDraw.pause(50);
+        }
+        //accept command: 'N', 'L', 'Q'
+        //       and handling mouse presses.
+        //set the initial position of some entity.
+        //show the world and accept different command.
+    }
+
+    private void initFrame(){
+        finalWorldFrame = new TETile[WIDTH][HEIGHT];
+        //initialize finalWorldFrame
+        for (int x = 0; x < WIDTH; x += 1) {
+            for (int y = 0; y < HEIGHT; y += 1) {
+                finalWorldFrame[x][y] = Tileset.NOTHING;
+            }
+        }
     }
 
     /**
@@ -210,14 +425,8 @@ public class Game {
 
         //ter.initialize(WIDTH, HEIGHT);
 
-        finalWorldFrame = new TETile[WIDTH][HEIGHT];
-        //initialize finalWorldFrame
-        for (int x = 0; x < WIDTH; x += 1) {
-            for (int y = 0; y < HEIGHT; y += 1) {
-                finalWorldFrame[x][y] = Tileset.NOTHING;
-            }
-        }
-
+        initFrame();
+        mousePos = Tileset.NOTHING;
         //parsing commands
         for(int i = 0;i < input.length();++i ){
             switch(input.charAt(i)){
@@ -229,15 +438,37 @@ public class Game {
                     }
                     ///there could exist an invalid input string.
                     ///if(i == input.length() || input.charAt(i) != ('s'  'S') )
-                    this.rand = new Random(seed);
+                    //this.rand = new Random(seed);
+                    setRandSeed(seed);
                     generateWorld(finalWorldFrame);
                     //generating the world
+                    finalWorldFrame[enx][eny] = Tileset.TREE;
                     break;
                 case 'L':
                 case 'l':
+                    loadConf();
                     break;
                 case ':'://expecting 'Q' or 'q'
+                    if(i+1 < input.length() && input.charAt(i+1) == 'q' || input.charAt(i+1) == 'Q'){
+                        saveConf();
+                        return finalWorldFrame;
+                    }
                     break;
+                case 'W':
+                case 'w':
+                    moveEW();
+                    break;
+                case 'A':
+                case 'a':
+                    moveEA();
+                    break;
+                case 'S':
+                case 's':
+                    moveES();
+                    break;
+                case 'D':
+                case 'd':
+                    moveED();
                 default:
                     //do nothing
             }
