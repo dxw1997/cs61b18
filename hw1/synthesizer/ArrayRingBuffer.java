@@ -9,7 +9,7 @@ import java.util.Iterator;
 public class ArrayRingBuffer<T> extends AbstractBoundedQueue<T>{
 
 
-    protected class KIterator<T> implements Iterator<T>{
+    private class KIterator<T> implements Iterator<T>{
         private int ptr;
         public KIterator() { ptr = first; }
         public boolean hasNext() { return (ptr != last); }
@@ -86,4 +86,8 @@ public class ArrayRingBuffer<T> extends AbstractBoundedQueue<T>{
     }
 
     // TODO: When you get to part 5, implement the needed code to support iteration.
+    @Override
+    public Iterator<T> iterator(){
+        return new KIterator<T>();
+    }
 }
