@@ -90,4 +90,9 @@ public class ArrayRingBuffer<T> extends AbstractBoundedQueue<T>{
     public Iterator<T> iterator(){
         return new KIterator<T>();
     }
+
+    public boolean hasNext() { return false; }
+    public T next() {
+        return null;
+    }
 }
