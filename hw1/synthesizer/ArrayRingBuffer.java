@@ -8,11 +8,12 @@ import java.util.Iterator;
 //TODO: Make sure to make this class extend AbstractBoundedQueue<t>
 public class ArrayRingBuffer<T> extends AbstractBoundedQueue<T>{
 
-
     private class KIterator<T> implements Iterator<T>{
         private int ptr;
         public KIterator() { ptr = first; }
+        @Override
         public boolean hasNext() { return (ptr != last); }
+        @Override
         public T next() {
             return (T) rb[ptr++];
         }
@@ -81,7 +82,7 @@ public class ArrayRingBuffer<T> extends AbstractBoundedQueue<T>{
         if(fillCount > 0){
             return rb[first];
         }else{
-            return null;
+            throw new RuntimeException("Ring Buffer Underflow");
         }
     }
 
@@ -91,8 +92,4 @@ public class ArrayRingBuffer<T> extends AbstractBoundedQueue<T>{
         return new KIterator<T>();
     }
 
-    public boolean hasNext() { return false; }
-    public T next() {
-        return null;
-    }
 }
