@@ -13,5 +13,4 @@ public abstract class AbstractBoundedQueue<T> implements BoundedQueue<T>{
         return fillCount;
     }
 
-    public abstract Iterator<T> iterator();
 }

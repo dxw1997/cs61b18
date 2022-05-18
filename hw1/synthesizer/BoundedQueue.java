@@ -1,5 +1,7 @@
 package synthesizer;
 
+import java.util.Iterator;
+
 public interface BoundedQueue<T>{
     int capacity();
     int fillCount();
@@ -12,4 +14,5 @@ public interface BoundedQueue<T>{
     default boolean isFull(){
         return fillCount() == capacity();
     }
+    Iterator<T> iterator();
 }
