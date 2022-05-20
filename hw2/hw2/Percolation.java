@@ -10,6 +10,7 @@ public class Percolation {
     private int N;
     private boolean[][] pMatrix;
     private WeightedQuickUnionUF wq;
+    private WeightedQuickUnionUF wq2;
     private int openSitesNum;
 
     /**
@@ -38,6 +39,7 @@ public class Percolation {
         this.N = N;
         pMatrix = new boolean[N][N];
         wq = new WeightedQuickUnionUF(N*N+2);
+        wq2 = new WeightedQuickUnionUF(N*N+1);
         openSitesNum = 0;
     }
     public void open(int row, int col){
@@ -45,11 +47,22 @@ public class Percolation {
         if(!pMatrix[row][col]){
             ++openSitesNum;
             pMatrix[row][col] = true;
-            if(row == 0 || isOpen(row-1, col)) wq.union(xyTo1D(row, col), xyTo1D(row-1, col));
-            if(row == N-1 || isOpen(row+1, col)) wq.union(xyTo1D(row, col), xyTo1D(row+1, col));
-            if(col > 0 && isOpen(row, col-1)) wq.union(xyTo1D(row, col), xyTo1D(row, col-1));
-            if(col < N-1 && isOpen(row, col+1)) wq.union(xyTo1D(row, col), xyTo1D(row, col+1));
-        }
+            if(row == 0 || isOpen(row-1, col)){
+                wq.union(xyTo1D(row, col), xyTo1D(row-1, col));
+                wq2.union(xyTo1D(row, col), xyTo1D(row-1, col));
+            }
+            if(row == N-1 || isOpen(row+1, col)){
+                wq.union(xyTo1D(row, col), xyTo1D(row+1, col));
+                if(row != N-1) wq2.union(xyTo1D(row, col), xyTo1D(row+1, col));
+            }
+            if(col > 0 && isOpen(row, col-1)){
+                wq.union(xyTo1D(row, col), xyTo1D(row, col-1));
+                wq2.union(xyTo1D(row, col), xyTo1D(row, col-1));            }
+            if(col < N-1 && isOpen(row, col+1)){
+                wq.union(xyTo1D(row, col), xyTo1D(row, col+1));
+                wq2.union(xyTo1D(row, col), xyTo1D(row, col+1));
+            }
+        }///not fixing backwash problem.
     }
     public boolean isOpen(int row, int col){
         check(row, col);
@@ -57,7 +70,7 @@ public class Percolation {
     }
     public boolean isFull(int row, int col){
         check(row, col);
-        return wq.connected(xyTo1D(row, col), xyTo1D(-1, col));
+        return wq2.connected(xyTo1D(row, col), xyTo1D(-1, col));
     }
     public int numberOfOpenSites(){
         return openSitesNum;
