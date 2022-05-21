@@ -40,7 +40,8 @@ public class CommonBugDetector {
                 case('e'): return createWorldStateList(List.of('g'));
                 case('x'): return createWorldStateList(List.of('c'));
                 default: return null;
-            }
+            }///s-a-b-c-d-e-g
+             ///s-x-c-d-e-g
         }
 
         private static List<WorldState> createWorldStateList(List<Character> lc) {
@@ -67,6 +68,10 @@ public class CommonBugDetector {
         public int hashCode() {
             return Objects.hash(name);
         }
+        @Override
+        public String toString() {
+            return Character.toString(name);
+        }
     }
 
 
@@ -76,6 +81,8 @@ public class CommonBugDetector {
 
         // s.moves() should be 5
         System.out.println("s.moves() should be 5, and your s.moves() is: " + s.moves());
+//        for(WorldState c:s.solution())
+//            System.out.print(c.toString()+" ");
 
         AlphabetEasyPuzzle aep = new AlphabetEasyPuzzle('a');
         Solver s3 = new Solver(aep);
