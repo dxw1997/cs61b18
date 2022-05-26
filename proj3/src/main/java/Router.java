@@ -1,7 +1,14 @@
+
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Queue;
+import java.util.PriorityQueue;
+import java.util.Comparator;
+import java.util.HashSet;
 
 /**
  * This class provides a shortestPath method for finding routes between two points
@@ -12,6 +19,37 @@ import java.util.regex.Pattern;
  * down to the priority you use to order your vertices.
  */
 public class Router {
+
+    private static class State{
+        long parentid;
+        long id;
+//        long destid;
+        double m;//the distance from st to this node.
+        double e;
+//        List<Long> lis;
+        State prevS;
+
+        public State(long id, long parentid, double m, double e, State prevS){
+            this.id = id;
+            this.m = m;
+            this.parentid = parentid;
+            this.e = e;
+            this.prevS = prevS;
+//            lis = new ArrayList<>();
+//            for(int i = 0;i < lis1.size();i++ ) lis.add(lis1.get(i));
+//            lis.add(id);
+        }
+    }
+
+    private static class Cmp implements Comparator<State>{
+        @Override
+        public int compare(State s1, State s2){
+            double t = ((s1.m+s1.e) - (s2.m+s2.e));
+            if(t == 0)return 0;
+            return t>0?1:-1;
+        }
+    }
+
     /**
      * Return a List of longs representing the shortest path from the node
      * closest to a start location and the node closest to the destination
@@ -25,7 +63,33 @@ public class Router {
      */
     public static List<Long> shortestPath(GraphDB g, double stlon, double stlat,
                                           double destlon, double destlat) {
-        return null; // FIXME
+        ///assuming that destid is reachable.
+        List<Long> path = new ArrayList<>();
+        Long stid = g.closest(stlon, stlat);
+        Long destid = g.closest(destlon, destlat);
+        Queue<State> q = new PriorityQueue<State>(10, new Cmp());
+        q.add(new State(stid, -1, 0, g.distance(stid, destid), null));
+        State s = null;
+        HashSet<Long> visited = new HashSet<>();
+        while(!q.isEmpty()){
+            s = q.poll();
+            if(visited.contains(s.id)) continue;
+            if(s.id == destid){
+                break;
+            }
+            visited.add(s.id);
+            for(long nxt:g.adjacent(s.id)){
+                if(!visited.contains(nxt)){
+                    q.add(new State(nxt, s.id, s.m+g.distance(s.id, nxt), g.distance(nxt, destid), s));
+                }
+            }
+        }
+        while(s != null){
+            path.add(s.id);
+            s = s.prevS;
+        }
+        Collections.reverse(path);
+        return path; // FIXME
     }
 
     /**
@@ -37,7 +101,50 @@ public class Router {
      * route.
      */
     public static List<NavigationDirection> routeDirections(GraphDB g, List<Long> route) {
-        return null; // FIXME
+        if(route.size() < 2) return null;
+        List<NavigationDirection> lis = new ArrayList<>();
+        double preBearing = g.bearing(route.get(0), route.get(1));
+        NavigationDirection n = new NavigationDirection();
+        n.way = g.getWayName(route.get(0), route.get(1));
+        n.direction = 0;
+        n.distance = g.distance(route.get(0), route.get(1));
+        lis.add(n);
+//        System.out.println(n.way);
+        for(int i = 2;i < route.size();++i ){
+            double bearing = g.bearing(route.get(i-1), route.get(i));
+//            long wayid = g.getWayId(route.get(i-1), route.get(i));
+            String way2 = g.getWayName(route.get(i-1), route.get(i));
+//            System.out.println(way2);
+//            System.out.println(wayid);
+            //System.out.println(n.way);
+            if(n.way.equals(way2)){
+                n.distance = n.distance + g.distance(route.get(i-1), route.get(i));
+            }else{
+                n = new NavigationDirection();
+                n.way = way2;
+                n.distance = g.distance(route.get(i-1), route.get(i));
+                //double bearingDiff = Math.min(bearing-preBearing, 360-(bearing-preBearing));
+                double bearingDiff = bearing-preBearing;
+                if(bearingDiff > 180){
+                    bearingDiff -= 360;
+                }
+                else if(bearingDiff < -180){
+                    bearingDiff += 360;
+                }
+               // System.out.println("bearing:"+bearing+"prebearing:"+preBearing);
+                if(-15 <= bearingDiff && bearingDiff <= 15) n.direction = 1;
+                else if(-30 <= bearingDiff && bearingDiff < -15) n.direction = 2;
+                else if(15 < bearingDiff && bearingDiff <= 30) n.direction = 3;
+                else if(-100 <= bearingDiff && bearingDiff < -30) n.direction = 5;
+                else if(30 < bearingDiff && bearingDiff <= 100) n.direction = 4;
+                else if(bearingDiff < -100) n.direction = 6;
+                else n.direction = 7;
+                lis.add(n);
+//                System.out.println(n.way);
+            }
+            preBearing = bearing;
+        }
+        return lis; // FIXME
     }
 
 

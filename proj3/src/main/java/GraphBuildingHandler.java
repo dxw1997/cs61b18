@@ -5,6 +5,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.ArrayList;
 
 /**
  *  Parses OSM XML files using an XML SAX parser. Used to construct the graph of roads for
@@ -38,6 +39,9 @@ public class GraphBuildingHandler extends DefaultHandler {
                     "secondary_link", "tertiary_link"));
     private String activeState = "";
     private final GraphDB g;
+    private long curRoad;
+    private long curNode;
+    private ArrayList<Long> curWayNodes;
 
     /**
      * Create a new GraphBuildingHandler.
@@ -74,14 +78,24 @@ public class GraphBuildingHandler extends DefaultHandler {
 
             /* TODO Use the above information to save a "node" to somewhere. */
             /* Hint: A graph-like structure would be nice. */
+            GraphDB.Node n = g.new Node(Long.parseLong(attributes.getValue("id")));
+            n.latitude = Double.parseDouble(attributes.getValue("lat"));
+            n.longitude = Double.parseDouble(attributes.getValue("lon"));
+            g.addNode(n);
 
         } else if (qName.equals("way")) {
             /* We encountered a new <way...> tag. */
             activeState = "way";
+            curRoad = Long.parseLong(attributes.getValue("id"));
+            GraphDB.Road r = g.new Road(curRoad);
+            g.addRoad(r);
+            curWayNodes = new ArrayList<>();
 //            System.out.println("Beginning a way...");
         } else if (activeState.equals("way") && qName.equals("nd")) {
             /* While looking at a way, we found a <nd...> tag. */
             //System.out.println("Id of a node in this way: " + attributes.getValue("ref"));
+            long refId = Long.parseLong(attributes.getValue("ref"));
+            curWayNodes.add(refId);
 
             /* TODO Use the above id to make "possible" connections between the nodes in this way */
             /* Hint1: It would be useful to remember what was the last node in this way. */
@@ -89,7 +103,6 @@ public class GraphBuildingHandler extends DefaultHandler {
             cumbersome since you might have to remove the connections if you later see a tag that
             makes this way invalid. Instead, think of keeping a list of possible connections and
             remember whether this way is valid or not. */
-
         } else if (activeState.equals("way") && qName.equals("tag")) {
             /* While looking at a way, we found a <tag...> tag. */
             String k = attributes.getValue("k");
@@ -97,22 +110,39 @@ public class GraphBuildingHandler extends DefaultHandler {
             if (k.equals("maxspeed")) {
                 //System.out.println("Max Speed: " + v);
                 /* TODO set the max speed of the "current way" here. */
+                //String speed = v;
+                g.setRoadMaxSpeed(curRoad, v);
             } else if (k.equals("highway")) {
                 //System.out.println("Highway type: " + v);
                 /* TODO Figure out whether this way and its connections are valid. */
                 /* Hint: Setting a "flag" is good enough! */
+                boolean f = ALLOWED_HIGHWAY_TYPES.contains(v);
+                if(!f){
+                    ///remove all nodes on this road.
+                    ///The parsing for this way is over.
+                    g.setRoadValid(curRoad, false);
+                    //activeState = "invalid";
+                    //g.delRoad(curRoad);
+                    //curWayNodes.clear();
+                }else{
+                    g.setRoadValid(curRoad, true);
+                    g.setRoadHighway(curRoad, v);
+                }
             } else if (k.equals("name")) {
                 //System.out.println("Way Name: " + v);
+                g.setRoadName(curRoad, v);
             }
 //            System.out.println("Tag with k=" + k + ", v=" + v + ".");
         } else if (activeState.equals("node") && qName.equals("tag") && attributes.getValue("k")
                 .equals("name")) {
             /* While looking at a node, we found a <tag...> with k="name". */
+            String v = attributes.getValue("v");
             /* TODO Create a location. */
             /* Hint: Since we found this <tag...> INSIDE a node, we should probably remember which
             node this tag belongs to. Remember XML is parsed top-to-bottom, so probably it's the
             last node that you looked at (check the first if-case). */
 //            System.out.println("Node's name: " + attributes.getValue("v"));
+            g.setNodeName(curNode, v);
         }
     }
 
@@ -134,6 +164,15 @@ public class GraphBuildingHandler extends DefaultHandler {
             /* Hint1: If you have stored the possible connections for this way, here's your
             chance to actually connect the nodes together if the way is valid. */
 //            System.out.println("Finishing a way...");
+            ///UNDO, connect those nodes now.
+            if(g.getRoadValid(curRoad) && curWayNodes.size() > 1){
+                ///connecting those nodes.
+                for(int i = 1;i < curWayNodes.size();i++ )
+                    g.connectNodeOnWay(curWayNodes.get(i-1), curWayNodes.get(i), curRoad);
+            }else{
+                g.delRoad(curRoad);
+                curWayNodes.clear();
+            }
         }
     }
 
