@@ -26,11 +26,11 @@ public class SeamCarver {
     }
 
     public SeamCarver(Picture picture){
-        this.pic = picture;
+        this.pic = new Picture(picture);
         initEnergyMatrix();
     }
     public Picture picture(){// current picture
-        return pic;
+        return new Picture(pic);
     }
     public int width() { // width of current picture
         return pic.width();
