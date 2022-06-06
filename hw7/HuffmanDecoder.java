@@ -5,10 +5,10 @@ import java.util.ArrayList;
 
 public class HuffmanDecoder {
     public static void main(String[] args){
-        if(args.length != 1){
-            System.out.println("please input decode filename");
-            return;
-        }
+//        if(args.length != 1){
+//            System.out.println("please input decode filename");
+//            return;
+//        }
         ObjectReader or = new ObjectReader(args[0]);
         BinaryTrie bt = (BinaryTrie)or.readObject();
         BitSequence bs = (BitSequence)or.readObject();

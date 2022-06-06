@@ -17,10 +17,10 @@ public class HuffmanEncoder {
         return res;
     }
     public static void main(String[] args){
-        if(args.length != 1){
-            System.out.println("please input the filename!");
-            return;
-        }
+//        if(args.length != 1){
+//            System.out.println("please input the filename!");
+//            return;
+//        }
         char[] inputSymbols = FileUtils.readFile(args[0]);
         Map<Character, Integer> frequencyTable = buildFrequencyTable(inputSymbols);
         BinaryTrie bt = new BinaryTrie(frequencyTable);
