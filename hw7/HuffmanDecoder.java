@@ -22,7 +22,7 @@ public class HuffmanDecoder {
         char[] carr = new char[ls.size()];
         for(int i = 0;i < ls.size();i++ )
             carr[i] = ls.get(i);
-        String newname = "original"+args[0].substring(0,args[0].length()-4);
-        FileUtils.writeCharArray(newname, carr);
+//        String newname = "original"+args[0].substring(0,args[0].length()-4);
+        FileUtils.writeCharArray(args[1], carr);
     }
 }

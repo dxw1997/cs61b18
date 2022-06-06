@@ -24,7 +24,7 @@ public class HuffmanEncoder {
         char[] inputSymbols = FileUtils.readFile(args[0]);
         Map<Character, Integer> frequencyTable = buildFrequencyTable(inputSymbols);
         BinaryTrie bt = new BinaryTrie(frequencyTable);
-        String saveFileName = args[0] + ".huf";
+        String saveFileName = args[0]+".huf";
         ObjectWriter ow = new ObjectWriter(saveFileName);
         ow.writeObject(bt);
         Map<Character, BitSequence> lt = bt.buildLookupTable();
