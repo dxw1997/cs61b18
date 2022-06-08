@@ -26,7 +26,7 @@ public class RadixSort {
             MLen = MLen >= asciis[i].length()?MLen:asciis[i].length();
             asc[i] = asciis[i];
         }
-        for(int i = MLen-1;i >= 0;i-- ){
+        for(int i = MLen-1;i >= MLen-5;i-- ){
             sortHelperLSD(asc, i);
         }
         return asc;
@@ -40,23 +40,39 @@ public class RadixSort {
      */
     private static void sortHelperLSD(String[] asciis, int index) {
         // Optional LSD helper method for required LSD radix sort
-        List<String>[] buckets = new List[257];
-        for(int i = 0;i < 257;i++ ) buckets[i] = new LinkedList<>();
+        int[] counts = new int[257];
+        String[] asc = new String[asciis.length];
         for(int i = 0;i < asciis.length;i++ ){
+            asc[i] = asciis[i];
             if(asciis[i].length() <= index){
                 int idx = 0;
-                buckets[idx].add(asciis[i]);
+                counts[idx]++;
             }else{
                 int idx = (int)asciis[i].charAt(index) + 1;
-                buckets[idx].add(asciis[i]);
+                counts[idx]++;
             }
+        //    if(index == 0) System.out.print(" "+asciis[i]);
         }
-        int k = 0;
-        for(int i = 0;i < 257;i++ ){
-            for(int j = 0;j < buckets[i].size();j++, k++){
-                asciis[k] = buckets[i].get(j);
+//        System.out.println();
+        int[] start = new int[257];
+        for(int i = 0, st = 0;i < 257;i++ ){
+            start[i] = st;
+            st += counts[i];
+        }
+        for(int i = 0;i < asc.length;i++ ){
+            int idx;
+            if(asc[i].length() <= index){
+                idx = 0;
+            }else{
+                idx = (int)asc[i].charAt(index) + 1;
             }
+//            if(index == 0) System.out.print("("+idx+")");
+            asciis[start[idx]] = asc[i];
+  //          System.out.print(" "+start[idx] + asc[i]);
+            start[idx]++;
+    //        System.out.print(" "+start[idx]);
         }
+      //  System.out.println();
         return;
     }
 
