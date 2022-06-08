@@ -40,19 +40,19 @@ public class RadixSort {
      */
     private static void sortHelperLSD(String[] asciis, int index) {
         // Optional LSD helper method for required LSD radix sort
-        List<String>[] buckets = new List[256];
-        for(int i = 0;i < 256;i++ ) buckets[i] = new LinkedList<>();
+        List<String>[] buckets = new List[257];
+        for(int i = 0;i < 257;i++ ) buckets[i] = new LinkedList<>();
         for(int i = 0;i < asciis.length;i++ ){
             if(asciis[i].length() <= index){
-                int idx = (int)' ';
+                int idx = 0;
                 buckets[idx].add(asciis[i]);
             }else{
-                int idx = (int)asciis[i].charAt(index);
+                int idx = (int)asciis[i].charAt(index) + 1;
                 buckets[idx].add(asciis[i]);
             }
         }
         int k = 0;
-        for(int i = 0;i < 256;i++ ){
+        for(int i = 0;i < 257;i++ ){
             for(int j = 0;j < buckets[i].size();j++, k++){
                 asciis[k] = buckets[i].get(j);
             }
