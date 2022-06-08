@@ -1,3 +1,6 @@
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Class for doing Radix sort
  *
@@ -17,7 +20,16 @@ public class RadixSort {
      */
     public static String[] sort(String[] asciis) {
         // TODO: Implement LSD Sort
-        return null;
+        int MLen = 0;
+        String[] asc = new String[asciis.length];
+        for(int i = 0;i < asciis.length;i++ ){
+            MLen = MLen >= asciis[i].length()?MLen:asciis[i].length();
+            asc[i] = asciis[i];
+        }
+        for(int i = MLen-1;i >= 0;i-- ){
+            sortHelperLSD(asc, i);
+        }
+        return asc;
     }
 
     /**
@@ -28,6 +40,23 @@ public class RadixSort {
      */
     private static void sortHelperLSD(String[] asciis, int index) {
         // Optional LSD helper method for required LSD radix sort
+        List<String>[] buckets = new List[256];
+        for(int i = 0;i < 256;i++ ) buckets[i] = new LinkedList<>();
+        for(int i = 0;i < asciis.length;i++ ){
+            if(asciis[i].length() <= index){
+                int idx = (int)' ';
+                buckets[idx].add(asciis[i]);
+            }else{
+                int idx = (int)asciis[i].charAt(index);
+                buckets[idx].add(asciis[i]);
+            }
+        }
+        int k = 0;
+        for(int i = 0;i < 256;i++ ){
+            for(int j = 0;j < buckets[i].size();j++, k++){
+                asciis[k] = buckets[i].get(j);
+            }
+        }
         return;
     }
 
@@ -44,5 +73,18 @@ public class RadixSort {
     private static void sortHelperMSD(String[] asciis, int start, int end, int index) {
         // Optional MSD helper method for optional MSD radix sort
         return;
+    }
+
+    public static void main(String[] args){
+        String[] asciis = new String[5];
+        asciis[0] = "acd";
+        asciis[1] = "acddd";
+        asciis[2] = "bcd";
+        asciis[3] = "ec";
+        asciis[4] = "gcd";
+        String[] r = sort(asciis);
+        for(int i = 0;i < r.length;i++ ){
+            System.out.print(" "+r[i]);
+        }
     }
 }
