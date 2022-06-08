@@ -35,7 +35,13 @@ public class MergeSort {
     private static <Item extends Comparable> Queue<Queue<Item>>
             makeSingleItemQueues(Queue<Item> items) {
         // Your code here!
-        return null;
+        Queue<Queue<Item>> res = new Queue<>();
+        while(!items.isEmpty()){
+            Queue<Item> q = new Queue<>();
+            q.enqueue(items.dequeue());
+            res.enqueue(q);
+        }
+        return res;
     }
 
     /**
@@ -54,13 +60,51 @@ public class MergeSort {
     private static <Item extends Comparable> Queue<Item> mergeSortedQueues(
             Queue<Item> q1, Queue<Item> q2) {
         // Your code here!
-        return null;
+        Queue<Item> r = new Queue<>();
+        while(!q1.isEmpty() || !q2.isEmpty()){
+            r.enqueue(getMin(q1,q2));
+        }
+        return r;
     }
 
     /** Returns a Queue that contains the given items sorted from least to greatest. */
     public static <Item extends Comparable> Queue<Item> mergeSort(
             Queue<Item> items) {
         // Your code here!
-        return items;
+        if(items.size() == 1) return items;
+        int N = items.size();
+        Queue<Item> left = new Queue<>();
+        Queue<Item> right = new Queue<>();
+        for(int i = 0;i < N/2;i++ ) left.enqueue(items.dequeue());
+        while(!items.isEmpty()) right.enqueue(items.dequeue());
+        left = mergeSort(left);
+        right = mergeSort(right);
+        return mergeSortedQueues(left, right);
+    }
+
+    public static void main(String[] args){
+        Queue<String> students = new Queue<String>();
+        students.enqueue("Alice");
+        students.enqueue("Vanessa");
+        students.enqueue("Ethan");
+        Queue<String> res = MergeSort.mergeSort(students);
+        Queue<String> expected = new Queue<String>();
+        expected.enqueue("Alice");
+        expected.enqueue("Ethan");
+        expected.enqueue("Vanessa");
+        if(res.size() != expected.size()){
+            while(!res.isEmpty())System.out.println(res.dequeue());
+            System.out.println("sort failed(size)");
+            return;
+        }
+        while(!res.isEmpty()){
+            String r = res.dequeue();
+            String e = expected.dequeue();
+            if(!r.equals(e)){
+                System.out.println("sort failed(element)");
+                return;
+            }
+        }
+        System.out.println("sort succeed!");
     }
 }
