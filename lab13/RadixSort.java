@@ -26,7 +26,7 @@ public class RadixSort {
             MLen = MLen >= asciis[i].length()?MLen:asciis[i].length();
             asc[i] = asciis[i];
         }
-        for(int i = MLen-1;i >= MLen-5;i-- ){
+        for(int i = MLen-1;i >= 0;i-- ){
             sortHelperLSD(asc, i);
         }
         return asc;
@@ -92,12 +92,25 @@ public class RadixSort {
     }
 
     public static void main(String[] args){
-        String[] asciis = new String[5];
+        String[] asciis = new String[7];
         asciis[0] = "acd";
         asciis[1] = "acddd";
         asciis[2] = "bcd";
         asciis[3] = "ec";
         asciis[4] = "gcd";
+        asciis[5] = new String();
+        asciis[5] += (char)102;
+        asciis[5] += (char)184;
+        asciis[5] += (char)248;
+        asciis[5] += (char)100;
+        asciis[5] += (char)159;
+        asciis[5] += (char)101;
+        asciis[6] = new String();
+        asciis[6] += (char)161;
+        asciis[6] += (char)77;
+        asciis[6] += (char)11;
+        asciis[6] += (char)203;
+        asciis[6] += (char)203;
         String[] r = sort(asciis);
         for(int i = 0;i < r.length;i++ ){
             System.out.print(" "+r[i]);
